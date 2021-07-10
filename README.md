@@ -18,21 +18,21 @@ A very simple webhook server to launch shell scripts.
 Run the following command:
 
 ```bash
-$ go get -v github.com/ncarlier/webhookd
+go get -v github.com/ncarlier/webhookd
 ```
 
 **Or** download the binary regarding your architecture:
 
 ```bash
-$ sudo curl -s https://raw.githubusercontent.com/ncarlier/webhookd/master/install.sh | bash
+sudo curl -s https://raw.githubusercontent.com/ncarlier/webhookd/master/install.sh | bash
 or
-$ curl -sf https://gobinaries.com/ncarlier/webhookd | sh
+curl -sf https://gobinaries.com/ncarlier/webhookd | sh
 ```
 
 **Or** use Docker:
 
 ```bash
-$ docker run -d --name=webhookd \
+docker run -d --name=webhookd \
   -v ${PWD}/scripts:/var/opt/webhookd/scripts \
   -p 8080:8080 \
   ncarlier/webhookd \
@@ -111,7 +111,7 @@ echo "bar bar bar"
 Output using `POST` (`Chunked transfer encoding`):
 
 ```bash
-$ curl -v -XPOST http://localhost:8080/foo/bar
+curl -v -XPOST http://localhost:8080/foo/bar
 < HTTP/1.1 200 OK
 < Content-Type: text/plain; charset=utf-8
 < Transfer-Encoding: chunked
@@ -123,7 +123,7 @@ bar bar bar
 Output using  `GET` (`Server-sent events`):
 
 ```bash
-$ curl -v -XGET http://localhost:8080/foo/bar
+curl -v -XGET http://localhost:8080/foo/bar
 < HTTP/1.1 200 OK
 < Content-Type: text/event-stream
 < Transfer-Encoding: chunked
@@ -161,7 +161,7 @@ echo "Script parameters: $1"
 The result:
 
 ```bash
-$ curl --data @test.json http://localhost:8080/echo?foo=bar
+curl --data @test.json http://localhost:8080/echo?foo=bar
 Hook information: name=echo, id=1
 Query parameter: foo=bar
 Header parameter: user-agent=curl/7.52.1
@@ -180,7 +180,7 @@ You can override this global behavior per request by setting the HTTP header:
 *Example:*
 
 ```bash
-$ curl -H "X-Hook-Timeout: 5" http://localhost:8080/echo?foo=bar
+curl -H "X-Hook-Timeout: 5" http://localhost:8080/echo?foo=bar
 ```
 
 ### Webhook logs
@@ -193,15 +193,15 @@ The hook ID is returned as an HTTP header with the Webhook response: `X-Hook-ID`
 *Example:*
 
 ```bash
-$ # Call webhook
-$ curl -v http://localhost:8080/echo?foo=bar
+# Call webhook
+curl -v http://localhost:8080/echo?foo=bar
 ...
 < HTTP/1.1 200 OK
 < Content-Type: text/event-stream
 < X-Hook-Id: 2
 ...
-$ # Retrieve logs afterwards
-$ curl http://localhost:8080/echo/2
+# Retrieve logs afterwards
+curl http://localhost:8080/echo/2
 ```
 
 If needed, you can also redirect hook logs to the server output (configured by the `WHD_HOOK_LOG_OUTPUT` environment variable).
@@ -217,9 +217,9 @@ Currently, only two channels are supported: `Email` and `HTTP`.
 Notifications configuration can be done as follow:
 
 ```bash
-$ export WHD_NOTIFICATION_URI=http://requestb.in/v9b229v9
-$ # or
-$ webhookd --notification-uri=http://requestb.in/v9b229v9
+export WHD_NOTIFICATION_URI=http://requestb.in/v9b229v9
+# or
+webhookd --notification-uri=http://requestb.in/v9b229v9
 ```
 
 Note that only the output of the script prefixed by "notify:" is sent to the notification channel.
@@ -284,8 +284,8 @@ You can restrict access to webhooks using HTTP basic authentication.
 To activate basic authentication, you have to create a `htpasswd` file:
 
 ```bash
-$ # create passwd file the user 'api'
-$ htpasswd -B -c .htpasswd api
+# create passwd file the user 'api'
+htpasswd -B -c .htpasswd api
 ```
 This command will ask for a password and store it in the htpawsswd file.
 
@@ -294,15 +294,15 @@ Please note that by default, the daemon will try to load the `.htpasswd` file.
 But you can override this behavior by specifying the location of the file:
 
 ```bash
-$ export WHD_PASSWD_FILE=/etc/webhookd/users.htpasswd
-$ # or
-$ webhookd --passwd-file /etc/webhookd/users.htpasswd
+export WHD_PASSWD_FILE=/etc/webhookd/users.htpasswd
+# or
+webhookd --passwd-file /etc/webhookd/users.htpasswd
 ```
 
 Once configured, you must call webhooks using basic authentication:
 
 ```bash
-$ curl -u api:test -XPOST "http://localhost:8080/echo?msg=hello"
+curl -u api:test -XPOST "http://localhost:8080/echo?msg=hello"
 ```
 
 ### Signature
@@ -312,9 +312,9 @@ You can ensure message integrity (and authenticity) with [HTTP Signatures](https
 To activate HTTP signature verification, you have to configure the trust store:
 
 ```bash
-$ export WHD_TRUST_STORE_FILE=/etc/webhookd/pubkey.pem
-$ # or
-$ webhookd --trust-store-file /etc/webhookd/pubkey.pem
+export WHD_TRUST_STORE_FILE=/etc/webhookd/pubkey.pem
+# or
+webhookd --trust-store-file /etc/webhookd/pubkey.pem
 ```
 
 Public key is stored in PEM format.
@@ -322,7 +322,7 @@ Public key is stored in PEM format.
 Once configured, you must call webhooks using a valid HTTP signature:
 
 ```bash
-$ curl -X POST \
+curl -X POST \
   -H 'Date: <req-date>' \
   -H 'Signature: keyId=<key-id>,algorithm="rsa-sha256",headers="(request-target) date",signature=<signature-string>' \
   -H 'Accept: application/json' \
@@ -336,9 +336,9 @@ You can find a small HTTP client in the ["tooling" directory](./tooling/httpsig/
 You can activate TLS to secure communications:
 
 ```bash
-$ export WHD_TLS=true
-$ # or
-$ webhookd --tls
+export WHD_TLS=true
+# or
+webhookd --tls
 ```
 
 By default webhookd is expecting a certificate and key file (`./server.pem` and `./server.key`).
@@ -348,10 +348,10 @@ Webhookd also support [ACME](https://ietf-wg-acme.github.io/acme/) protocol.
 You can activate ACME by setting a fully qualified domain name:
 
 ```bash
-$ export WHD_TLS=true
-$ export WHD_TLS_DOMAIN=hook.example.com
-$ # or
-$ webhookd --tls --tls-domain=hook.example.com
+export WHD_TLS=true
+export WHD_TLS_DOMAIN=hook.example.com
+# or
+webhookd --tls --tls-domain=hook.example.com
 ```
 
 **Note:**
